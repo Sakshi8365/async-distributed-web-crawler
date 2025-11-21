@@ -2,7 +2,7 @@
 name = "distributed-crawler"
 version = "0.1.0"
 description = "Asynchronous distributed-style web crawler with Redis frontier and Mongo storage"
-authors = [ { name = "Your Name" } ]
+authors = [ { name = "Sakshi8365" } ]
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -13,18 +13,23 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 
-[project.dependencies]
-aiohttp = "3.9.5"
-beautifulsoup4 = "4.12.3"
-redis = "5.0.8"
-motor = "3.7.1"
-python-dotenv = "1.0.1"
-networkx = "3.2.1"
-pyvis = "0.3.2"
-pytest = "8.2.1"
+dependencies = [
+  "aiohttp==3.9.5",
+  "beautifulsoup4==4.12.3",
+  "redis==5.0.8",
+  "motor==3.7.1",
+  "python-dotenv==1.0.1",
+  "networkx==3.2.1",
+  "pyvis==0.3.2"
+]
 
 [project.optional-dependencies]
-dev = ["black","ruff","mypy"]
+dev = [
+  "pytest==8.2.1",
+  "black==24.10.0",
+  "ruff==0.6.4",
+  "mypy==1.11.2"
+]
 
 [project.scripts]
 crawler-cli = "crawler.main:main"
