@@ -1,7 +1,5 @@
 # Distributed Web Crawler (Async, Redis, Mongo)
 
-![Build](https://img.shields.io/badge/build-pending-lightgrey) ![Python](https://img.shields.io/badge/python-3.12-blue) ![License](https://img.shields.io/badge/license-MIT-green)
-
 A scalable async web crawler demonstrating distributed-style scheduling via Redis + Lua scripts and durable page/link storage in MongoDB. Suitable as a portfolio project: shows concurrency (asyncio + aiohttp), data structures (ZSET frontier, SET dedupe), politeness (rate limiting & robots.txt), and analytics (status codes, domain stats, link graph export).
 
 ## Architecture
