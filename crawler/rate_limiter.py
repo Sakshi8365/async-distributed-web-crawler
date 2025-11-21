@@ -36,9 +36,13 @@ class RateLimiter:
         self.redis = redis
         self._script = redis.register_script(CHECK_AND_RESERVE_LUA)
 
-    async def check_and_reserve(self, domain: str, cooldown_seconds: float) -> Tuple[float, bool]:
+    async def check_and_reserve(
+        self, domain: str, cooldown_seconds: float
+    ) -> Tuple[float, bool]:
         now = time.time()
-        allowed_at, reserved = await self._script(keys=[RL_HASH], args=[domain, now, cooldown_seconds])
+        allowed_at, reserved = await self._script(
+            keys=[RL_HASH], args=[domain, now, cooldown_seconds]
+        )
         if isinstance(allowed_at, (bytes, bytearray)):
             allowed_at = float(allowed_at.decode())
         else:

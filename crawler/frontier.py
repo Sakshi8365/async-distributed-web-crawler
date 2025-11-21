@@ -44,7 +44,9 @@ class Frontier:
         score = float(scheduled_at) if scheduled_at is not None else time.time()
         await self.redis.zadd(FRONTIER_ZSET, {url: score})
 
-    async def push_many(self, urls: list[str], scheduled_at: Optional[float] = None) -> None:
+    async def push_many(
+        self, urls: list[str], scheduled_at: Optional[float] = None
+    ) -> None:
         if not urls:
             return
         score = float(scheduled_at) if scheduled_at is not None else time.time()
@@ -53,7 +55,10 @@ class Frontier:
 
     async def pop_ready(self, max_count: int = 1) -> list[str]:
         now = time.time()
-        return [u.decode() if isinstance(u, (bytes, bytearray)) else u for u in await self._pop_ready(keys=[FRONTIER_ZSET], args=[max_count, now])]
+        return [
+            u.decode() if isinstance(u, (bytes, bytearray)) else u
+            for u in await self._pop_ready(keys=[FRONTIER_ZSET], args=[max_count, now])
+        ]
 
     async def size(self) -> int:
         return int(await self.redis.zcard(FRONTIER_ZSET))

@@ -27,7 +27,9 @@ class Worker:
         self.robots = Robots(redis, cfg.user_agent)
         self.storage = storage
 
-    async def _fetch(self, session: aiohttp.ClientSession, url: str) -> tuple[int, Optional[str], Optional[str]]:
+    async def _fetch(
+        self, session: aiohttp.ClientSession, url: str
+    ) -> tuple[int, Optional[str], Optional[str]]:
         attempts = 0
         delay = 0.5
         last_status: int = 0
@@ -35,17 +37,29 @@ class Worker:
         last_html: Optional[str] = None
         while attempts < 3:
             try:
-                async with session.get(url, timeout=self.cfg.request_timeout_seconds, headers={"User-Agent": self.cfg.user_agent}) as resp:
+                async with session.get(
+                    url,
+                    timeout=self.cfg.request_timeout_seconds,
+                    headers={"User-Agent": self.cfg.user_agent},
+                ) as resp:
                     ctype = resp.headers.get("Content-Type")
-                    if resp.status != 200 or (ctype and "text/html" not in ctype.lower()):
+                    if resp.status != 200 or (
+                        ctype and "text/html" not in ctype.lower()
+                    ):
                         await resp.read()
                         last_status, last_ctype, last_html = resp.status, ctype, None
                     else:
-                        body = await resp.content.read(self.cfg.max_content_size_bytes + 1)
+                        body = await resp.content.read(
+                            self.cfg.max_content_size_bytes + 1
+                        )
                         if len(body) > self.cfg.max_content_size_bytes:
                             last_status, last_ctype, last_html = 200, ctype, None
                         else:
-                            last_status, last_ctype, last_html = 200, ctype, body.decode(errors="ignore")
+                            last_status, last_ctype, last_html = (
+                                200,
+                                ctype,
+                                body.decode(errors="ignore"),
+                            )
                 break  # successful attempt (even if non-200 we stop)
             except Exception:
                 last_status, last_ctype, last_html = 0, None, None
@@ -77,7 +91,9 @@ class Worker:
             return True
 
         domain = (urlparse(url).hostname or "").lower()
-        allowed_at, reserved = await self.rl.check_and_reserve(domain, self.cfg.domain_cooldown_seconds)
+        allowed_at, reserved = await self.rl.check_and_reserve(
+            domain, self.cfg.domain_cooldown_seconds
+        )
         if not reserved:
             # Not yet allowed; reschedule URL for its allowed_at
             await self.frontier.push(url, scheduled_at=allowed_at)
@@ -88,7 +104,9 @@ class Worker:
         title = ""
         new_links: list[str] = []
         if html:
-            title, new_links = extract_links(url, html, allowed_domains=self.cfg.allowed_domains)
+            title, new_links = extract_links(
+                url, html, allowed_domains=self.cfg.allowed_domains
+            )
 
         # Save page
         await self.storage.save_page(
