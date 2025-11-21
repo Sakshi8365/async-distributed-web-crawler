@@ -259,6 +259,6 @@ docker compose up --build
 
 ## License
 
-MIT License © 2025 Sakshi8365. See `LICENSE` for full text.
+MIT License © 2025 Sakshi8365.
 
 ---
