@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.dist-info/
+
+# Virtual env
+.venv/
+venv/
+ENV/
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+
+# Test & cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Generated output
+output/
+logs/
+
+# Environment / secrets
+.env
+*.env.local
+
+# Packaging/build
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Docker artifacts
+*.tar
+
+# Samples (optional keep committed, comment out if not)
+# samples/

@@ -1,0 +1,7 @@
+{
+  "pages_crawled": 120,
+  "duration_seconds": 8.4,
+  "pages_per_second": 14.28,
+  "status_counts": {"200": 112, "404": 5, "301": 2, "0": 1},
+  "robots_blocked": 3
+}
