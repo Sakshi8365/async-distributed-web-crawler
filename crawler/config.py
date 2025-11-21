@@ -47,9 +47,7 @@ def load_config() -> Config:
     _rto_raw = os.getenv("REQUEST_TIMEOUT_SECONDS")
     request_timeout_seconds = int(_rto_raw) if _rto_raw is not None else 15
     _mcs_raw = os.getenv("MAX_CONTENT_SIZE_BYTES")
-    max_content_size_bytes = (
-        int(_mcs_raw) if _mcs_raw is not None else 3 * 1024 * 1024
-    )
+    max_content_size_bytes = int(_mcs_raw) if _mcs_raw is not None else 3 * 1024 * 1024
     user_agent = os.getenv("USER_AGENT", "DistributedCrawler/1.0")
     seed_urls = _parse_csv(os.getenv("SEED_URLS"))
     allowed_domains = _parse_domains(os.getenv("ALLOWED_DOMAINS"))

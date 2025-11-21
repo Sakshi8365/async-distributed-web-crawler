@@ -45,3 +45,8 @@ warn_unused_ignores = false
 warn_redundant_casts = true
 warn_unused_configs = true
 disable_error_code = ["misc"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["crawler*"]
+exclude = ["tests*", "samples*", "output*", "lib*", "scripts*"]
