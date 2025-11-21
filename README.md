@@ -262,5 +262,3 @@ docker compose up --build
 MIT License © 2025 Sakshi8365. See `LICENSE` for full text.
 
 ---
-
-> Badges will show actual status after you push to GitHub and CI runs.
