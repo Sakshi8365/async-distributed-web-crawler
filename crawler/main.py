@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import sys
 from typing import List
-from urllib.parse import urlparse
 import os
 import time
 import json
@@ -122,7 +120,9 @@ async def run_cmd(concurrency: int, max_pages: int | None) -> None:
     # Limit to a reasonable number of rows if very large
     MAX_EDGES = 200000
     written = 0
-    async for doc in storage._pages.find({"timestamp": {"$gte": start_ts}}, {"url": 1, "links": 1, "_id": 0}):
+    async for doc in storage._pages.find(
+        {"timestamp": {"$gte": start_ts}}, {"url": 1, "links": 1, "_id": 0}
+    ):
         src = doc.get("url")
         links = doc.get("links", [])
         if not src or not links:
@@ -150,18 +150,24 @@ async def run_cmd(concurrency: int, max_pages: int | None) -> None:
     except Exception:
         pass
 
-    print(f"Run complete: pages={pages_crawled}, pps={pps:.2f}. Metrics at output/metrics.json. Graph at output/graph.csv{'' if written>0 else ' (no edges)'}.")
+    print(
+        f"Run complete: pages={pages_crawled}, pps={pps:.2f}. Metrics at output/metrics.json. Graph at output/graph.csv{'' if written>0 else ' (no edges)'}."
+    )
 
 
-def dump_status(path_json: str = "output/status.json", path_html: str = "output/dashboard.html") -> None:
+def dump_status(
+    path_json: str = "output/status.json", path_html: str = "output/dashboard.html"
+) -> None:
     """Dump current crawler status (frontier, visited, pages) to JSON and static HTML."""
     cfg = load_config()
     redis = Redis.from_url(cfg.redis_url, decode_responses=False)
     storage = Storage(cfg.mongo_url, cfg.mongo_db)
+
     async def _do():
         await storage.init()
         from .dupe import VISITED_SET
         from .frontier import FRONTIER_ZSET
+
         frontier_sz = await redis.zcard(FRONTIER_ZSET)
         visited = await redis.scard(VISITED_SET)
         pages = await storage.count_pages()
@@ -190,6 +196,7 @@ def dump_status(path_json: str = "output/status.json", path_html: str = "output/
             await redis.aclose()
         except Exception:
             pass
+
     asyncio.run(_do())
 
 
@@ -200,16 +207,34 @@ def main() -> None:
     p_seed = sub.add_parser("seed", help="Seed URLs into the frontier")
     p_seed.add_argument("urls", nargs="+", help="One or more URLs")
 
-    p_stats = sub.add_parser("stats", help="Show basic stats")
+    _p_stats = sub.add_parser("stats", help="Show basic stats")
 
     p_run = sub.add_parser("run", help="Run workers")
-    p_run.add_argument("--concurrency", type=int, default=None, help="Worker count (defaults to CONCURRENCY)")
-    p_run.add_argument("--max-pages", type=int, default=None, help="Stop after crawling this many pages (approximate)")
+    p_run.add_argument(
+        "--concurrency",
+        type=int,
+        default=None,
+        help="Worker count (defaults to CONCURRENCY)",
+    )
+    p_run.add_argument(
+        "--max-pages",
+        type=int,
+        default=None,
+        help="Stop after crawling this many pages (approximate)",
+    )
 
-    p_dump = sub.add_parser("dump-status", help="Write status.json and dashboard.html snapshot")
-    p_domain = sub.add_parser("domain-stats", help="Show top domains in frontier, visited, stored pages")
-    p_domain.add_argument("--limit", type=int, default=15, help="Number of domains to show")
-    p_domain.add_argument("--json", action="store_true", help="Output JSON instead of table")
+    _p_dump = sub.add_parser(
+        "dump-status", help="Write status.json and dashboard.html snapshot"
+    )
+    p_domain = sub.add_parser(
+        "domain-stats", help="Show top domains in frontier, visited, stored pages"
+    )
+    p_domain.add_argument(
+        "--limit", type=int, default=15, help="Number of domains to show"
+    )
+    p_domain.add_argument(
+        "--json", action="store_true", help="Output JSON instead of table"
+    )
 
     args = parser.parse_args()
 
@@ -218,14 +243,17 @@ def main() -> None:
     storage = Storage(cfg.mongo_url, cfg.mongo_db)
 
     if args.cmd == "seed":
+
         async def seed_entry():
             await seed_cmd(redis, args.urls)
             try:
                 await redis.aclose()
             except Exception:
                 pass
+
         asyncio.run(seed_entry())
     elif args.cmd == "stats":
+
         async def stats_entry():
             await storage.init()
             await stats_cmd(redis, storage)
@@ -237,6 +265,7 @@ def main() -> None:
                 await redis.aclose()
             except Exception:
                 pass
+
         asyncio.run(stats_entry())
     elif args.cmd == "run":
         conc = args.concurrency if args.concurrency is not None else cfg.concurrency
@@ -247,35 +276,55 @@ def main() -> None:
     elif args.cmd == "dump-status":
         dump_status()
     elif args.cmd == "domain-stats":
+
         async def domain_stats_entry():
             await storage.init()
             from .frontier import FRONTIER_ZSET
             from .dupe import VISITED_SET
-            import collections, urllib.parse
+            import collections
+            import urllib.parse
 
             # Frontier domains
             frontier_counts = collections.Counter()
             cursor = 0
             while True:
-                cursor, items = await redis.zscan(FRONTIER_ZSET, cursor=cursor, count=500)
+                cursor, items = await redis.zscan(
+                    FRONTIER_ZSET, cursor=cursor, count=500
+                )
                 for member, _score in items:
-                    url = member.decode() if isinstance(member, (bytes, bytearray)) else member
+                    url = (
+                        member.decode()
+                        if isinstance(member, (bytes, bytearray))
+                        else member
+                    )
                     host = urllib.parse.urlparse(url).hostname or ""
-                    if host.startswith("www."): host = host[4:]
-                    if host: frontier_counts[host] += 1
-                if cursor == 0: break
+                    if host.startswith("www."):
+                        host = host[4:]
+                    if host:
+                        frontier_counts[host] += 1
+                if cursor == 0:
+                    break
 
             # Visited domains
             visited_counts = collections.Counter()
             cursor = 0
             while True:
-                cursor, batch = await redis.sscan(VISITED_SET, cursor=cursor, count=1000)
+                cursor, batch = await redis.sscan(
+                    VISITED_SET, cursor=cursor, count=1000
+                )
                 for member in batch:
-                    url = member.decode() if isinstance(member, (bytes, bytearray)) else member
+                    url = (
+                        member.decode()
+                        if isinstance(member, (bytes, bytearray))
+                        else member
+                    )
                     host = urllib.parse.urlparse(url).hostname or ""
-                    if host.startswith("www."): host = host[4:]
-                    if host: visited_counts[host] += 1
-                if cursor == 0: break
+                    if host.startswith("www."):
+                        host = host[4:]
+                    if host:
+                        visited_counts[host] += 1
+                if cursor == 0:
+                    break
 
             # Stored pages domains (Mongo aggregate)
             stored_counts = collections.Counter()
@@ -286,10 +335,13 @@ def main() -> None:
             ]
             async for doc in storage._pages.aggregate(pipeline):
                 d = doc.get("_id") or ""
-                if d: stored_counts[d] = doc.get("count", 0)
+                if d:
+                    stored_counts[d] = doc.get("count", 0)
 
             def top(counter) -> list[tuple[str, int]]:  # type: ignore
-                return [(str(dom), int(cnt)) for dom, cnt in counter.most_common(args.limit)]
+                return [
+                    (str(dom), int(cnt)) for dom, cnt in counter.most_common(args.limit)
+                ]
 
             data = {
                 "frontier": top(frontier_counts),
@@ -299,11 +351,13 @@ def main() -> None:
             if args.json:
                 print(json.dumps(data, indent=2))
             else:
+
                 def print_table(title: str, rows: list[tuple[str, int]]) -> None:
                     print(f"\n{title} (top {len(rows)})")
                     print("Domain".ljust(40), "Count")
                     for dom, cnt in rows:
                         print(dom.ljust(40), cnt)
+
                 print_table("Frontier Domains", data["frontier"])
                 print_table("Visited Domains", data["visited"])
                 print_table("Stored Domains", data["stored"])
@@ -315,6 +369,7 @@ def main() -> None:
                 await redis.aclose()
             except Exception:
                 pass
+
         asyncio.run(domain_stats_entry())
     else:
         parser.print_help()

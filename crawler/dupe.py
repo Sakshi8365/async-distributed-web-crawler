@@ -14,13 +14,14 @@ class Dedupe:
         self.redis = redis
 
     async def is_visited(self, url: str) -> bool:
-        return bool(await self.redis.sismember(VISITED_SET, url))
+        res = await self.redis.sismember(VISITED_SET, url)
+        return bool(res)
 
     async def mark_visited(self, url: str, ts: float | None = None) -> None:
         ts = ts or time.time()
         pipe = self.redis.pipeline()
         pipe.sadd(VISITED_SET, url)
-        pipe.hset(VISITED_TS, url, ts)
+        pipe.hset(VISITED_TS, url, str(ts))
         await pipe.execute()
 
     async def has_many(self, urls: Iterable[str]) -> list[bool]:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set, Tuple
+from typing import Optional, Set, Tuple
 from urllib.parse import urljoin, urldefrag, urlparse, urlunparse
 
 from bs4 import BeautifulSoup
@@ -53,7 +53,9 @@ def normalize_url(base_url: str, href: str) -> Optional[str]:
     return norm
 
 
-def extract_links(base_url: str, html: str, allowed_domains: Optional[Set[str]] = None) -> Tuple[str, list[str]]:
+def extract_links(
+    base_url: str, html: str, allowed_domains: Optional[Set[str]] = None
+) -> Tuple[str, list[str]]:
     soup = BeautifulSoup(html, "html.parser")
     # Title
     title_tag = soup.find("title")
@@ -62,7 +64,7 @@ def extract_links(base_url: str, html: str, allowed_domains: Optional[Set[str]] 
     # Links
     out: list[str] = []
     for a in soup.find_all("a", href=True):
-        norm = normalize_url(base_url, a["href"]) 
+        norm = normalize_url(base_url, a["href"])
         if not norm:
             continue
         if allowed_domains:

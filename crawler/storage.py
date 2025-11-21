@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from typing import Any, Dict, Optional
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
@@ -8,7 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 
 class Storage:
     def __init__(self, mongo_url: str, db_name: str) -> None:
-        self._client = AsyncIOMotorClient(mongo_url)
+        self._client: AsyncIOMotorClient = AsyncIOMotorClient(mongo_url)
         self._db = self._client[db_name]
         self._pages: AsyncIOMotorCollection = self._db["pages"]
 

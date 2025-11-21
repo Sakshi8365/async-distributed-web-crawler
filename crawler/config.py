@@ -41,14 +41,20 @@ def load_config() -> Config:
     redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     mongo_url = os.getenv("MONGO_URL", "mongodb://localhost:27017")
     mongo_db = os.getenv("MONGO_DB", "crawler")
-    concurrency = int(os.getenv("CONCURRENCY", "200"))
+    _concurrency_raw = os.getenv("CONCURRENCY")
+    concurrency = int(_concurrency_raw) if _concurrency_raw is not None else 200
     domain_cooldown_seconds = float(os.getenv("DOMAIN_COOLDOWN_SECONDS", "1.0"))
-    request_timeout_seconds = int(os.getenv("REQUEST_TIMEOUT_SECONDS", "15"))
-    max_content_size_bytes = int(os.getenv("MAX_CONTENT_SIZE_BYTES", str(3 * 1024 * 1024)))
+    _rto_raw = os.getenv("REQUEST_TIMEOUT_SECONDS")
+    request_timeout_seconds = int(_rto_raw) if _rto_raw is not None else 15
+    _mcs_raw = os.getenv("MAX_CONTENT_SIZE_BYTES")
+    max_content_size_bytes = (
+        int(_mcs_raw) if _mcs_raw is not None else 3 * 1024 * 1024
+    )
     user_agent = os.getenv("USER_AGENT", "DistributedCrawler/1.0")
     seed_urls = _parse_csv(os.getenv("SEED_URLS"))
     allowed_domains = _parse_domains(os.getenv("ALLOWED_DOMAINS"))
-    max_pages = int(os.getenv("MAX_PAGES")) if os.getenv("MAX_PAGES") else None
+    _max_pages_raw = os.getenv("MAX_PAGES")
+    max_pages = int(_max_pages_raw) if _max_pages_raw is not None else None
 
     return Config(
         redis_url=redis_url,

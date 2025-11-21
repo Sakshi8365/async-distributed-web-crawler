@@ -37,3 +37,11 @@ crawler-cli = "crawler.main:main"
 [build-system]
 requires = ["setuptools>=67","wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.mypy]
+ignore_missing_imports = true
+strict_optional = true
+warn_unused_ignores = false
+warn_redundant_casts = true
+warn_unused_configs = true
+disable_error_code = ["misc"]
